@@ -1,4 +1,5 @@
 import os
+import re
 import comtypes.client
 import PyPDF2
 
@@ -63,6 +64,41 @@ def clean_up(files):
         if os.path.exists(file):
             os.remove(file)
 
+def find_pdf_to_merge(pptx_dir):
+    pattern1 = re.compile(r'.*ESF.*Fragebogen.*\.pdf')
+    pattern2 = re.compile(r'.*Fragebogen.*ESF.*\.pdf')
+    pattern3 = re.compile(r'.*ESF.*\.pdf')
+    pattern4 = re.compile(r'.*EFS.*Fragebogen.*\.pdf')
+    pattern5 = re.compile(r'.*Fragebogen.*EFS.*\.pdf')
+    pattern6 = re.compile(r'.*EFS.*\.pdf')
+    pattern7 = re.compile(r'.*Fragebogen.*\.pdf')
+    
+    for file in os.listdir(pptx_dir):
+        if pattern1.match(file) or pattern2.match(file):
+            return os.path.join(pptx_dir, file)
+    
+    for file in os.listdir(pptx_dir):
+        if pattern3.match(file):
+            return os.path.join(pptx_dir, file)
+    
+    for file in os.listdir(pptx_dir):
+        if pattern4.match(file):
+            return os.path.join(pptx_dir, file)
+    
+    for file in os.listdir(pptx_dir):
+        if pattern5.match(file):
+            return os.path.join(pptx_dir, file)
+    
+    for file in os.listdir(pptx_dir):
+        if pattern6.match(file):
+            return os.path.join(pptx_dir, file)
+    
+    for file in os.listdir(pptx_dir):
+        if pattern7.match(file):
+            return os.path.join(pptx_dir, file)
+    
+    return None
+
 try:
     # Ask for file location
     pptx_dir = input("Please enter the full path to your PowerPoint file: ")
@@ -96,8 +132,12 @@ try:
     # Split the PDF at the calculated position
     part1_pdf, part2_pdf = split_pdf(output_pdf, split_page, pptx_dir)
 
-    file_name_for_merging = input("Please enter the file name which should be merged with: ")
-    file_to_merge_pdf = os.path.join(pptx_dir, file_name_for_merging)
+    # Find the PDF to merge with
+    file_to_merge_pdf = find_pdf_to_merge(pptx_dir)
+    if file_to_merge_pdf is None:
+        file_name_for_merging = input("Please enter the file name which should be merged with: ")
+        file_to_merge_pdf = os.path.join(pptx_dir, file_name_for_merging)
+
     final_output_pdf = os.path.join(pptx_dir, f"{base_name}.pdf")
 
     merge_pdfs([part1_pdf, file_to_merge_pdf, part2_pdf], final_output_pdf)
